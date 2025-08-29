@@ -105,7 +105,7 @@ const LeaveForm = () => {
   
       const formDataToSend = { ...formData, profile_picture: imageUrl };
   
-      await axios.post("http://localhost:4000/add-user", formDataToSend);
+      await axios.post("https://gully-ems.onrender.com/add-user", formDataToSend);
   
       // Reset form
       setFormData({
