@@ -143,7 +143,7 @@ function UserTimein() {
                 <thead>
                   <tr>
                     {columns.map((column) => (
-                      <th key={column.id} className="cursor-pointer border-b-[1px] border-gray-200 pt-4 pb-2 pr-4 text-start">
+                      <th key={column.id} className="cursor-pointer border-b-[1px] border-gray-200 pt-4 pb-2 pr-4 text-center">
                         {column.header}
                       </th>
                     ))}
@@ -153,7 +153,7 @@ function UserTimein() {
                   {currentProfiles.map((profile, index) => (
                     <tr key={`${profile.emp_code}-${index}`}>
                       {columns.map((column) => (
-                        <td key={column.id} className="border-b border-gray-200 px-4 py-2">
+                        <td key={column.id} className="border-b border-gray-200 px-4 py-2 text-center">
                           {flexRender(column.cell, { row: { original: profile } })}
                         </td>
                       ))}
