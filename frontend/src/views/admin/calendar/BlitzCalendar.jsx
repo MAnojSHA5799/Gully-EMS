@@ -1,49 +1,57 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Widget from "components/widget/Widget";
-import { MdBarChart, MdDashboard } from "react-icons/md";
-import { IoDocuments } from "react-icons/io5";
 
-const BlitzCalendar = () => {
-  const [salary, setSalary] = useState(20000);
-  const [workDays, setWorkDays] = useState(27);
+const Calendar = () => {
   const [leaveData, setLeaveData] = useState([]);
-  const [calculatedSalary, setCalculatedSalary] = useState(0);
-  const [user, setUser] = useState(null);
-  const [empCode, setEmpCode] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [salary, setSalary] = useState(0);
+  const [workDays, setWorkDays] = useState(0);
+  const [calculatedSalary, setCalculatedSalary] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      setEmpCode(parsedUser.emp_code);
-      fetchLeaveData(parsedUser.emp_code);
-    }
+    fetchLeaveData();
   }, []);
 
-  const fetchLeaveData = async (employeeCode) => {
+  const fetchLeaveData = async () => {
     try {
-      const response = await axios.get(`https://gully-ems.onrender.com/allpayroll`);
-      console.log("allpayroll",response.data);
-      setLeaveData(response.data.employeeLeaveData); // Assuming response has employeeLeaveData
-      setIsLoading(false); // Stop loading
-
-      // Calculate total leaves and present days for each employee
-      response.data.employeeLeaveData.forEach((employee) => {
-        const totalLeaves = employee.total_days_of_leave || 0;
-        const presentDays = workDays - totalLeaves;
-        const calculatedSalary = (salary / workDays) * presentDays;
-        setCalculatedSalary((prevState) => ({
-          ...prevState,
-          [employee.emp_code]: calculatedSalary.toFixed(2), // Storing salary for each employee
-        }));
-      });
+      const response = await axios.get("https://gully-ems.onrender.com/allpayroll");
+      if (response.data && Array.isArray(response.data.employeeLeaveData)) {
+        setLeaveData(response.data.employeeLeaveData);
+      } else {
+        console.error("No valid employeeLeaveData found in response");
+      }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching leave data:", error);
-      setIsLoading(false); // Stop loading on error
+      setIsLoading(false);
     }
+  };
+
+  const handleCalculateClick = (employee) => {
+    setSelectedEmployee(employee);
+    setSalary(employee.basic_salary || 0);
+    setWorkDays(employee.total_work_days || 0);
+    setShowPopup(true);
+  };
+
+  const handleSubmit = () => {
+    if (selectedEmployee) {
+      const totalLeaves = selectedEmployee.total_days_of_leave || 0;
+      const presentDays = workDays - totalLeaves;
+      const calculatedSalaryValue = (salary / workDays) * presentDays;
+      setCalculatedSalary(calculatedSalaryValue.toFixed(2));
+      
+      setLeaveData((prevData) =>
+        prevData.map((emp) =>
+          emp.emp_code === selectedEmployee.emp_code
+            ? { ...emp, total_work_days: workDays, present_days: presentDays, calculated_salary: calculatedSalaryValue.toFixed(2) }
+            : emp
+        )
+      );
+    }
+    setShowPopup(false);
   };
 
   return (
@@ -56,34 +64,94 @@ const BlitzCalendar = () => {
         </div>
       ) : (
         <>
-          <table className="mt-3">
-            <thead className="text-center">
+          <table className="mt-3 w-full table-auto border-collapse">
+            <thead className="text-center bg-gray-200">
               <tr>
-                <th>Sn. no</th>
-                <th>Name</th>
-                <th>Total workDays</th>
-                <th>Total Days of Leave</th>
-                <th>Present Days</th>
-                <th>Calculated Salary</th>
+                <th className="p-2 border">Sn. No</th>
+                <th className="p-2 border">Name</th>
+                <th className="p-2 border">Total Work Days</th>
+                <th className="p-2 border">Total Days of Leave</th>
+                <th className="p-2 border">Present Days</th>
+                <th className="p-2 border">Calculated Salary</th>
+                <th className="p-2 border">Action</th>
               </tr>
             </thead>
             <tbody className="text-center">
               {leaveData.map((employee, index) => (
                 <tr key={employee.emp_code}>
-                  <td>{index + 1}</td>
-                  <td>{employee.name}</td>
-                  <td>{workDays}</td>
-                  <td>{employee.total_days_of_leave}</td>
-                  <td>{workDays - employee.total_days_of_leave}</td>
-                  <td>{calculatedSalary[employee.emp_code]}</td> {/* Displaying the calculated salary */}
+                  <td data-label="Id">{index + 1}</td>
+                  <td data-label="Name">{employee.name}</td>
+                  <td data-label="Total Workdays">{employee.total_work_days || "-"}</td>
+                  <td data-label="Total Leave">{employee.total_days_of_leave || "-"}</td>
+                  <td data-label="Present Days">{employee.present_days || "-"}</td>
+                  <td data-label="Salary">{employee.calculated_salary || "-"}</td>
+                  <td>
+                  <button
+  onClick={() => handleCalculateClick(employee)}
+  className="px-4 py-2 text-white rounded-md"
+  style={{ backgroundColor: "#CC375D" }}
+>
+  Calculate
+</button>
+
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+
+          {showPopup && (
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+    <div className="bg-white p-6 rounded-md shadow-lg w-1/3">
+      <h2 className="text-lg font-semibold mb-4">Enter Details</h2>
+
+      {/* Salary Input */}
+      <div className="mb-3">
+        <label className="block text-sm font-medium text-gray-700">Basic Salary</label>
+        <input
+          type="number"
+          value={salary}
+          onChange={(e) => setSalary(Number(e.target.value))}
+          className="w-full p-2 border rounded-md"
+        />
+      </div>
+
+      {/* Work Days Input */}
+      <div className="mb-3">
+        <label className="block text-sm font-medium text-gray-700">Total Work Days</label>
+        <input
+          type="number"
+          value={workDays}
+          onChange={(e) => setWorkDays(Number(e.target.value))}
+          className="w-full p-2 border rounded-md"
+        />
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end space-x-3">
+        <button
+          onClick={() => setShowPopup(false)} // Close popup
+          className="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSubmit}
+          className="px-4 py-2 text-white rounded-md"
+          style={{ backgroundColor: "#CC375D" }}
+          disabled={!salary || !workDays}
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
         </>
       )}
     </div>
   );
 };
 
-export default BlitzCalendar;
+export default Calendar;
