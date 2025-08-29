@@ -77,31 +77,37 @@ const LeaveForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // If file is selected but no image URL is set, upload the image first
+  
     if (file && !imageUrl) {
       const uploadedImageUrl = await uploadImage();
       if (!uploadedImageUrl) {
-        return;  // If the image upload fails, return without submitting the form
+        alert("Image upload failed. Please try again.");
+        return; 
       }
+      setImageUrl(uploadedImageUrl); 
     }
-
+  
+    if (file && !imageUrl) {
+      alert("Please wait, image is still uploading...");
+      return;
+    }
+  
     try {
       const checkResponse = await axios.post("https://gully-ems.onrender.com/check-user", {
         emp_code: formData.emp_code,
         name: formData.name,
       });
-
+  
       if (checkResponse.data.exists) {
         alert("Employee Code or Name already exists!");
         return;
       }
-
-      // Add the profile_picture URL to formData
+  
       const formDataToSend = { ...formData, profile_picture: imageUrl };
-
-      await axios.post("https://gully-ems.onrender.com/add-user", formDataToSend);
-      // Clear form after submission
+  
+      await axios.post("http://localhost:4000/add-user", formDataToSend);
+  
+      // Reset form
       setFormData({
         emp_code: "",
         name: "",
@@ -119,6 +125,7 @@ const LeaveForm = () => {
         password: "",
       });
       setFile(null);
+      setImageUrl(""); 
       setSubmitted(true);
       alert("Employee details saved successfully!");
       navigate("/admin/data-tables");
@@ -126,6 +133,7 @@ const LeaveForm = () => {
       console.error("Error saving user details:", error);
     }
   };
+  
 
   return (
     <div className="mt-3 grid grid-cols-1 gap-5">
