@@ -53,7 +53,7 @@ const BlitzCalendar = () => {
 
   const fetchLeaveData = async (employeeCode) => {
     try {
-      const response = await axios.get(`http://localhost:4000/payroll?emp_code=${employeeCode}`);
+      const response = await axios.get(`https://gully-ems.onrender.com/payroll?emp_code=${employeeCode}`);
       console.log(response.data);
       setLeaveData(response.data);
 

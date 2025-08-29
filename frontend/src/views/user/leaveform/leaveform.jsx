@@ -47,7 +47,7 @@ function LeaveForm() {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:4000/leavedetails/${employeeCode}`
+        `https://gully-ems.onrender.com/leavedetails/${employeeCode}`
       );
       const leaveDates = response.data.map((leave) =>
         new Date(leave.applied_leave_dates).toISOString().slice(0, 10)
@@ -135,7 +135,7 @@ function LeaveForm() {
     };
 
     try {
-      await axios.post("http://localhost:4000/leave-applications", leaveRequest);
+      await axios.post("https://gully-ems.onrender.com/leave-applications", leaveRequest);
       setShowAlert(true);
       setTimeout(() => {
         setShowAlert(false);

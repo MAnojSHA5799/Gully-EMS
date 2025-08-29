@@ -25,7 +25,7 @@ const BlitzCalendar = () => {
 
   const fetchLeaveData = async (employeeCode) => {
     try {
-      const response = await axios.get(`http://localhost:4000/allpayroll`);
+      const response = await axios.get(`https://gully-ems.onrender.com/allpayroll`);
       console.log("allpayroll",response.data);
       setLeaveData(response.data.employeeLeaveData); // Assuming response has employeeLeaveData
       setIsLoading(false); // Stop loading

@@ -79,7 +79,7 @@ const Dashboard = () => {
   const fetchTrackingLeaves = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/api/tracking-leaves1"
+        "https://gully-ems.onrender.com/api/tracking-leaves1"
       );
       setTrackingData(response.data);
       setFilterTrackingData(response.data);
@@ -110,7 +110,7 @@ const Dashboard = () => {
   const fetchRejectedData = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/api/Rejected-data"
+        "https://gully-ems.onrender.com/api/Rejected-data"
       );
       setRejectedData(response.data);
       setFilterRectedData(response.data);
@@ -141,7 +141,7 @@ const Dashboard = () => {
   const fetchApprovedData = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/api/approved-data"
+        "https://gully-ems.onrender.com/api/approved-data"
       );
       setApprovedData(response.data);
       setFilteredData(response.data); // Initially set filtered data to all approved data
@@ -182,7 +182,7 @@ const Dashboard = () => {
     try {
       // Replace 'https://mini-hrms.onrender.com' with your actual backend URL
       const response = await axios.get(
-        "http://localhost:4000/getAverageTimeIn"
+        "https://gully-ems.onrender.com/getAverageTimeIn"
       );
       const data = response.data;
 
@@ -197,7 +197,7 @@ const Dashboard = () => {
   const fetchAverageWorkTime = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/getAverageWorkTime"
+        "https://gully-ems.onrender.com/getAverageWorkTime"
       );
       const data = response.data;
 
@@ -212,7 +212,7 @@ const Dashboard = () => {
   const fetchAverageTimeOut = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/getAverageTimeOut"
+        "https://gully-ems.onrender.com/getAverageTimeOut"
       );
       const data = response.data;
 
@@ -226,7 +226,7 @@ const Dashboard = () => {
 
   const fetchLeaveData = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/api/leave-data");
+      const response = await axios.get("https://gully-ems.onrender.com/api/leave-data");
       setLeaveData(response.data);
     } catch (error) {
       console.error("Error fetching leave data:", error);
